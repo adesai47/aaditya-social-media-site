@@ -1,33 +1,17 @@
+// Prisma schema
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("DATABASE_URL") // Add your PostgreSQL connection string to your .env file
 }
 
 generator client {
   provider = "prisma-client-js"
 }
 
-model User {
-  id       Int      @id @default(autoincrement())
-  email    String   @unique
-  username String
-  posts    Post[]
-  likes    Like[]
-}
-
 model Post {
-  id        Int      @id @default(autoincrement())
-  user      User     @relation(fields: [userId], references: [id])
-  userId    Int
-  artwork   Json
-  createdAt DateTime @default(now())
-  likes     Like[]
-}
-
-model Like {
-  id     Int   @id @default(autoincrement())
-  post   Post  @relation(fields: [postId], references: [id])
-  postId Int
-  user   User  @relation(fields: [userId], references: [id])
-  userId Int
+  id            Int      @id @default(autoincrement())
+  userId        String   // User ID
+  artConfig     Json     // Storing the configuration for the artwork
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }

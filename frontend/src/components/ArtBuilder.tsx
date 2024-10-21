@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useSpring, animated } from "@react-spring/web";
 
 export function ArtBuilder() {
-  // State for controlling the blob size, color, and dropdown options
   const [blobSize, setBlobSize] = useState(100);
   const [blobColor, setBlobColor] = useState("#61dafb");
   const [backgroundColor, setBackgroundColor] = useState("#252424");
@@ -11,9 +10,8 @@ export function ArtBuilder() {
   const [animate, setAnimate] = useState(true);
   const [fillTriangles, setFillTriangles] = useState(true);
   const [fillSquares, setFillSquares] = useState(true);
-  const [dropdownOpen, setDropdownOpen] = useState(false); // Dropdown state
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  // React Spring animation for size and color
   const blobAnimation = useSpring({
     width: blobSize,
     height: blobSize,
@@ -21,11 +19,11 @@ export function ArtBuilder() {
     borderRadius: "50%",
   });
 
-  // Toggle dropdown visibility
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
   };
 
+  // Updated URL to point to the correct backend server
   const saveArtwork = async () => {
     const artworkConfig = {
       blobSize,
@@ -39,7 +37,8 @@ export function ArtBuilder() {
     };
 
     try {
-      const response = await fetch("/api/posts", {
+      // Make sure to use the correct port for your backend (change 3000 if needed)
+      const response = await fetch("http://localhost:3000/api/posts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ artConfig: artworkConfig, userId: "user-id" }),
@@ -58,7 +57,7 @@ export function ArtBuilder() {
   return (
     <div
       style={{
-        position: "relative", // Ensure the parent container is relative to handle absolute positioning
+        position: "relative",
         padding: "20px",
         backgroundColor: "#f5f5f5",
         textAlign: "center",
@@ -72,9 +71,9 @@ export function ArtBuilder() {
       <button
         onClick={toggleDropdown}
         style={{
-          position: "absolute", // Absolute positioning within the container
-          top: "10px", // Positioned at the top
-          right: "10px", // Positioned at the right
+          position: "absolute",
+          top: "10px",
+          right: "10px",
           padding: "10px 20px",
           backgroundColor: "#61dafb",
           border: "none",
@@ -97,7 +96,7 @@ export function ArtBuilder() {
             padding: "20px",
             borderRadius: "10px",
             color: "#fff",
-            zIndex: 1000, // Ensures it appears above other elements
+            zIndex: 1000,
             width: "250px",
             boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
           }}

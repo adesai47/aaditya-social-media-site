@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import Avatar from "react-avataaars";
-import { useTrail, animated } from "@react-spring/web";
-import useMeasure from "react-use-measure";
+import Avatar from "react-avataaars"; // Ensure this is correctly imported
+import { useTrail, animated } from "@react-spring/web"; // Ensure this is correctly imported
+import useMeasure from "react-use-measure"; // Ensure this is correctly imported
 
 const fast = { tension: 1200, friction: 40 };
 const slow = { mass: 10, tension: 200, friction: 50 };
@@ -113,7 +113,9 @@ export function SocialFeed() {
               boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
             }}
           >
-            <h2 style={{ color: "#333", marginBottom: "10px" }}>{post.user.name}</h2>
+            <h2 style={{ color: "#333", marginBottom: "10px" }}>
+              {post.user?.name || "Unknown User"}
+            </h2>
             <Avatar {...post.artConfig} />
             <button
               onClick={() => handleLike(post.id)}
