@@ -1,94 +1,121 @@
-import express, { Request, Response } from 'express';
-import bodyParser from 'body-parser';
-import { PrismaClient } from '@prisma/client';
+import express from "express";
+import { PrismaClient } from "@prisma/client";
+import cors from "cors";
 
-const app = express();
+// Initialize Prisma Client
 const prisma = new PrismaClient();
-app.use(bodyParser.json());
+const app = express();
 
-// User Signup
-app.post('/signup', async (req: Request, res: Response) => {
-  const { email, username } = req.body;
+// Middleware
+app.use(express.json()); // Parse incoming JSON requests
+app.use(cors()); // Enable Cross-Origin Resource Sharing for all routes
 
-  try {
-    const user = await prisma.user.create({
-      data: {
-        email,
-        username,
-      },
-    });
-    res.status(201).json(user);
-  } catch (error) {
-    res.status(400).json({ error: 'User could not be created' });
+// API Routes
+
+// Create a new post (artwork)
+app.post("/api/posts", async (req, res) => {
+  const { userId, artConfig } = req.body;
+
+  if (!userId || !artConfig) {
+    return res.status(400).json({ error: "Invalid request: missing userId or artConfig" });
   }
-});
-
-// Create Post (Save Artwork)
-app.post('/posts', async (req: Request, res: Response) => {
-  const { userId, artwork } = req.body;
 
   try {
     const post = await prisma.post.create({
       data: {
-        artwork,
         userId,
+        artConfig,
       },
     });
     res.status(201).json(post);
   } catch (error) {
-    res.status(400).json({ error: 'Post could not be created' });
+    console.error("Error creating post:", error);
+    res.status(500).json({ error: "Failed to create post" });
   }
 });
 
-// Fetch All Posts
-app.get('/posts', async (req: Request, res: Response) => {
+// Fetch all posts (artworks)
+app.get("/api/posts", async (req, res) => {
   try {
     const posts = await prisma.post.findMany({
-      orderBy: { createdAt: 'desc' },
-      include: { user: true, likes: true },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
     res.json(posts);
   } catch (error) {
-    res.status(500).json({ error: 'Posts could not be retrieved' });
+    console.error("Error fetching posts:", error);
+    res.status(500).json({ error: "Failed to fetch posts" });
   }
 });
 
-// Like a Post
-app.post('/posts/:id/like', async (req: Request, res: Response) => {
-  const postId = parseInt(req.params.id);
-  const { userId } = req.body;
+// Fetch a single post by ID
+app.get("/api/posts/:id", async (req, res) => {
+  const { id } = req.params;
 
   try {
-    const like = await prisma.like.create({
-      data: {
-        postId,
-        userId,
-      },
-    });
-    res.status(201).json(like);
-  } catch (error) {
-    res.status(400).json({ error: 'Like could not be added' });
-  }
-});
-
-// Unlike a Post
-app.delete('/posts/:id/like', async (req: Request, res: Response) => {
-  const postId = parseInt(req.params.id);
-  const { userId } = req.body;
-
-  try {
-    const like = await prisma.like.deleteMany({
+    const post = await prisma.post.findUnique({
       where: {
-        postId,
-        userId,
+        id: parseInt(id),
       },
     });
-    res.json(like);
+
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    res.json(post);
   } catch (error) {
-    res.status(400).json({ error: 'Like could not be removed' });
+    console.error("Error fetching post:", error);
+    res.status(500).json({ error: "Failed to fetch post" });
   }
 });
 
-app.listen(3001, () => {
-  console.log('Server running on http://localhost:3001');
+// Update a post (artwork) by ID
+app.put("/api/posts/:id", async (req, res) => {
+  const { id } = req.params;
+  const { artConfig } = req.body;
+
+  if (!artConfig) {
+    return res.status(400).json({ error: "Invalid request: missing artConfig" });
+  }
+
+  try {
+    const post = await prisma.post.update({
+      where: {
+        id: parseInt(id),
+      },
+      data: {
+        artConfig,
+      },
+    });
+
+    res.json(post);
+  } catch (error) {
+    console.error("Error updating post:", error);
+    res.status(500).json({ error: "Failed to update post" });
+  }
+});
+
+// Delete a post by ID
+app.delete("/api/posts/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await prisma.post.delete({
+      where: {
+        id: parseInt(id),
+      },
+    });
+    res.status(204).send();
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    res.status(500).json({ error: "Failed to delete post" });
+  }
+});
+
+// Start the server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });
