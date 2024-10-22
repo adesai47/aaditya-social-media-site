@@ -5,39 +5,35 @@ export function ArtBuilder() {
   const [blobSize, setBlobSize] = useState(100);
   const [blobColor, setBlobColor] = useState("#61dafb");
   const [backgroundColor, setBackgroundColor] = useState("#252424");
-  const [angle, setAngle] = useState(45);
-  const [iterations, setIterations] = useState(3);
-  const [animate, setAnimate] = useState(true);
-  const [fillTriangles, setFillTriangles] = useState(true);
-  const [fillSquares, setFillSquares] = useState(true);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [speed, setSpeed] = useState(1);
+  const [isSaving, setIsSaving] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 }); // New state for blob position
 
+  // Blob animation with speed control and position
   const blobAnimation = useSpring({
     width: blobSize,
     height: blobSize,
     backgroundColor: blobColor,
     borderRadius: "50%",
+    transform: `translate(${position.x}px, ${position.y}px)`, // Blob position based on cursor
+    config: { duration: 1000 / speed },
   });
 
-  const toggleDropdown = () => {
-    setDropdownOpen(!dropdownOpen);
+  // Mouse move handler
+  const handleMouseMove = (e: React.MouseEvent) => {
+    setPosition({ x: e.clientX - blobSize / 2, y: e.clientY - blobSize / 2 });
   };
 
-  // Updated URL to point to the correct backend server
   const saveArtwork = async () => {
     const artworkConfig = {
       blobSize,
       blobColor,
       backgroundColor,
-      angle,
-      iterations,
-      animate,
-      fillTriangles,
-      fillSquares,
+      speed,
     };
 
     try {
-      // Make sure to use the correct port for your backend (change 3000 if needed)
+      setIsSaving(true);
       const response = await fetch("http://localhost:3000/api/posts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -51,6 +47,8 @@ export function ArtBuilder() {
       alert("Artwork saved successfully.");
     } catch (error) {
       console.error("Error saving artwork:", error);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -64,114 +62,68 @@ export function ArtBuilder() {
         maxWidth: "800px",
         margin: "0 auto",
       }}
+      onMouseMove={handleMouseMove} // Attach mouse move handler
     >
       <h1 style={{ color: "#333" }}>Art Editor</h1>
 
-      {/* Dropdown Button */}
-      <button
-        onClick={toggleDropdown}
+      {/* Controls for blob size, blob color, background color, and speed */}
+      <div
         style={{
-          position: "absolute",
-          top: "10px",
-          right: "10px",
-          padding: "10px 20px",
-          backgroundColor: "#61dafb",
-          border: "none",
-          borderRadius: "5px",
-          color: "#fff",
-          cursor: "pointer",
+          marginBottom: "20px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "20px",
         }}
       >
-        Options
-      </button>
-
-      {/* Options Dropdown */}
-      {dropdownOpen && (
-        <div
-          style={{
-            position: "absolute",
-            top: "50px",
-            right: "10px",
-            backgroundColor: "#252424",
-            padding: "20px",
-            borderRadius: "10px",
-            color: "#fff",
-            zIndex: 1000,
-            width: "250px",
-            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-          }}
-        >
-          <div style={{ marginBottom: "10px" }}>
-            <label style={{ marginRight: "10px" }}>Background: </label>
-            <input
-              type="color"
-              value={backgroundColor}
-              onChange={(e) => setBackgroundColor(e.target.value)}
-              style={{ width: "100%" }}
-            />
-          </div>
-
-          <div style={{ marginBottom: "10px" }}>
-            <label style={{ marginRight: "10px" }}>Angle: </label>
-            <input
-              type="range"
-              min="0"
-              max="360"
-              value={angle}
-              onChange={(e) => setAngle(Number(e.target.value))}
-              style={{ width: "100%" }}
-            />
-            <span>{angle}°</span>
-          </div>
-
-          <div style={{ marginBottom: "10px" }}>
-            <label>Iterations: </label>
-            <input
-              type="number"
-              min="1"
-              max="10"
-              value={iterations}
-              onChange={(e) => setIterations(Number(e.target.value))}
-              style={{ width: "100%" }}
-            />
-          </div>
-
-          <div style={{ marginBottom: "10px" }}>
-            <label>
-              <input
-                type="checkbox"
-                checked={animate}
-                onChange={() => setAnimate(!animate)}
-              />
-              Animate
-            </label>
-          </div>
-
-          <div style={{ marginBottom: "10px" }}>
-            <label>
-              <input
-                type="checkbox"
-                checked={fillTriangles}
-                onChange={() => setFillTriangles(!fillTriangles)}
-              />
-              Fill Triangles
-            </label>
-          </div>
-
-          <div>
-            <label>
-              <input
-                type="checkbox"
-                checked={fillSquares}
-                onChange={() => setFillSquares(!fillSquares)}
-              />
-              Fill Squares
-            </label>
-          </div>
+        <div style={{ marginBottom: "10px" }}>
+          <label style={{ marginRight: "10px" }}>Blob Size: </label>
+          <input
+            type="range"
+            min="50"
+            max="300"
+            value={blobSize}
+            onChange={(e) => setBlobSize(Number(e.target.value))}
+            style={{ width: "100%" }}
+          />
+          <span>{blobSize}px</span>
         </div>
-      )}
 
-      {/* Live Preview */}
+        <div style={{ marginBottom: "10px" }}>
+          <label style={{ marginRight: "10px" }}>Blob Color: </label>
+          <input
+            type="color"
+            value={blobColor}
+            onChange={(e) => setBlobColor(e.target.value)}
+            style={{ width: "100%" }}
+          />
+        </div>
+
+        <div style={{ marginBottom: "10px" }}>
+          <label style={{ marginRight: "10px" }}>Background Color: </label>
+          <input
+            type="color"
+            value={backgroundColor}
+            onChange={(e) => setBackgroundColor(e.target.value)}
+            style={{ width: "100%" }}
+          />
+        </div>
+
+        <div style={{ marginBottom: "10px" }}>
+          <label style={{ marginRight: "10px" }}>Speed: </label>
+          <input
+            type="range"
+            min="1"
+            max="5"
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            style={{ width: "100%" }}
+          />
+          <span>{speed}</span>
+        </div>
+      </div>
+
+      {/* Live Preview with Mouse Movement */}
       <div
         style={{
           margin: "20px auto",
@@ -180,9 +132,17 @@ export function ArtBuilder() {
           padding: "40px",
           borderRadius: "10px",
           width: "fit-content",
+          height: "300px",
+          overflow: "hidden",
         }}
       >
-        <animated.div style={{ ...blobAnimation, margin: "0 auto" }} />
+        <animated.div
+          style={{
+            ...blobAnimation,
+            position: "absolute", // Absolute positioning for free movement
+            cursor: "move",
+          }}
+        />
       </div>
 
       {/* Save Button */}
@@ -190,14 +150,15 @@ export function ArtBuilder() {
         onClick={saveArtwork}
         style={{
           padding: "10px 20px",
-          backgroundColor: "#61dafb",
+          backgroundColor: isSaving ? "#ccc" : "#61dafb",
           border: "none",
           borderRadius: "5px",
           color: "#fff",
-          cursor: "pointer",
+          cursor: isSaving ? "not-allowed" : "pointer",
         }}
+        disabled={isSaving}
       >
-        Save Artwork
+        {isSaving ? "Saving..." : "Save Artwork"}
       </button>
     </div>
   );

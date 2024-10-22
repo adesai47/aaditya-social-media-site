@@ -13,7 +13,7 @@ app.use(cors()); // Enable Cross-Origin Resource Sharing for all routes
 // API Routes
 
 // Create a new post (artwork)
-app.post("/api/posts", async (req, res) => {
+app.post("http://localhost:3000/api/posts", async (req, res) => {
   const { userId, artConfig } = req.body;
 
   if (!userId || !artConfig) {
@@ -48,6 +48,28 @@ app.get("/api/posts", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch posts" });
   }
 });
+
+app.post("/api/posts", async (req, res) => {
+  const { userId, artConfig } = req.body;
+
+  if (!userId || !artConfig) {
+    return res.status(400).json({ error: "Invalid request: missing userId or artConfig" });
+  }
+
+  try {
+    const post = await prisma.post.create({
+      data: {
+        userId,
+        artConfig,
+      },
+    });
+    res.status(201).json(post);
+  } catch (error) {
+    console.error("Error creating post:", error);
+    res.status(500).json({ error: "Failed to create post" });
+  }
+});
+
 
 // Fetch a single post by ID
 app.get("/api/posts/:id", async (req, res) => {
