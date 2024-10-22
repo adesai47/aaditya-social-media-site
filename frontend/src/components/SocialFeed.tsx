@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
-import Avatar from "react-avataaars"; // Ensure this is correctly imported
-import { useTrail, animated } from "@react-spring/web"; // Ensure this is correctly imported
-import useMeasure from "react-use-measure"; // Ensure this is correctly imported
+import React, { useState, useEffect } from "react";
+import { useTrail, animated } from "@react-spring/web"; // Ensure useTrail and animated are imported
+import useMeasure from "react-use-measure"; // Ensure useMeasure is imported
 
+// Define the fast and slow animation configurations
 const fast = { tension: 1200, friction: 40 };
 const slow = { mass: 10, tension: 200, friction: 50 };
+
 const trans = (x: number, y: number) =>
   `translate3d(${x}px,${y}px,0) translate3d(-50%,-50%,0)`;
 
@@ -19,16 +20,19 @@ export function SocialFeed() {
   useEffect(() => {
     async function fetchPosts() {
       try {
-        const response = await fetch("/api/posts");
+        const response = await fetch("http://localhost:3000/api/posts");
+        console.log("Response:", response); // Inspect the response
         if (!response.ok) {
           throw new Error("Failed to fetch posts.");
         }
         const data = await response.json();
+        console.log("Data:", data); // Log the parsed data
         setPosts(data);
       } catch (error) {
         console.error("Error fetching posts:", error);
       }
     }
+    
 
     fetchPosts();
   }, []);
@@ -116,7 +120,26 @@ export function SocialFeed() {
             <h2 style={{ color: "#333", marginBottom: "10px" }}>
               {post.user?.name || "Unknown User"}
             </h2>
-            <Avatar {...post.artConfig} />
+            {/* Display the blob using the artConfig */}
+            <div
+              style={{
+                position: "relative",
+                backgroundColor: post.artConfig.backgroundColor || "#252424",
+                padding: "40px",
+                borderRadius: "10px",
+                marginBottom: "20px",
+              }}
+            >
+              <animated.div
+                style={{
+                  width: `${post.artConfig.blobSize}px`,
+                  height: `${post.artConfig.blobSize}px`,
+                  backgroundColor: post.artConfig.blobColor,
+                  borderRadius: "50%",
+                }}
+              />
+            </div>
+
             <button
               onClick={() => handleLike(post.id)}
               style={{
