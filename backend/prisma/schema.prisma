@@ -12,6 +12,7 @@ model Post {
   id            Int      @id @default(autoincrement())
   userId        String   // User ID
   artConfig     Json     // Storing the configuration for the artwork
+  likes         Int      @default(0)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
