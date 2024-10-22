@@ -6,23 +6,14 @@ export function ArtBuilder() {
   const [blobColor, setBlobColor] = useState("#61dafb");
   const [backgroundColor, setBackgroundColor] = useState("#252424");
   const [speed, setSpeed] = useState(1);
-  const [isSaving, setIsSaving] = useState(false);
-  const [position, setPosition] = useState({ x: 0, y: 0 }); // New state for blob position
 
-  // Blob animation with speed control and position
   const blobAnimation = useSpring({
     width: blobSize,
     height: blobSize,
     backgroundColor: blobColor,
     borderRadius: "50%",
-    transform: `translate(${position.x}px, ${position.y}px)`, // Blob position based on cursor
-    config: { duration: 1000 / speed },
+    config: { duration: speed * 1000 }, // Speed affects the animation duration
   });
-
-  // Mouse move handler
-  const handleMouseMove = (e: React.MouseEvent) => {
-    setPosition({ x: e.clientX - blobSize / 2, y: e.clientY - blobSize / 2 });
-  };
 
   const saveArtwork = async () => {
     const artworkConfig = {
@@ -33,7 +24,6 @@ export function ArtBuilder() {
     };
 
     try {
-      setIsSaving(true);
       const response = await fetch("http://localhost:3000/api/posts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -47,8 +37,6 @@ export function ArtBuilder() {
       alert("Artwork saved successfully.");
     } catch (error) {
       console.error("Error saving artwork:", error);
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -62,21 +50,40 @@ export function ArtBuilder() {
         maxWidth: "800px",
         margin: "0 auto",
       }}
-      onMouseMove={handleMouseMove} // Attach mouse move handler
     >
       <h1 style={{ color: "#333" }}>Art Editor</h1>
 
-      {/* Controls for blob size, blob color, background color, and speed */}
+      {/* Options */}
       <div
         style={{
           marginBottom: "20px",
           display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
+          justifyContent: "space-around",
           gap: "20px",
         }}
       >
-        <div style={{ marginBottom: "10px" }}>
+        {/* Background Color */}
+        <div>
+          <label style={{ marginRight: "10px" }}>Background Color: </label>
+          <input
+            type="color"
+            value={backgroundColor}
+            onChange={(e) => setBackgroundColor(e.target.value)}
+          />
+        </div>
+
+        {/* Blob Color */}
+        <div>
+          <label style={{ marginRight: "10px" }}>Blob Color: </label>
+          <input
+            type="color"
+            value={blobColor}
+            onChange={(e) => setBlobColor(e.target.value)}
+          />
+        </div>
+
+        {/* Blob Size */}
+        <div>
           <label style={{ marginRight: "10px" }}>Blob Size: </label>
           <input
             type="range"
@@ -84,63 +91,45 @@ export function ArtBuilder() {
             max="300"
             value={blobSize}
             onChange={(e) => setBlobSize(Number(e.target.value))}
-            style={{ width: "100%" }}
-          />
-          <span>{blobSize}px</span>
-        </div>
-
-        <div style={{ marginBottom: "10px" }}>
-          <label style={{ marginRight: "10px" }}>Blob Color: </label>
-          <input
-            type="color"
-            value={blobColor}
-            onChange={(e) => setBlobColor(e.target.value)}
-            style={{ width: "100%" }}
           />
         </div>
 
-        <div style={{ marginBottom: "10px" }}>
-          <label style={{ marginRight: "10px" }}>Background Color: </label>
-          <input
-            type="color"
-            value={backgroundColor}
-            onChange={(e) => setBackgroundColor(e.target.value)}
-            style={{ width: "100%" }}
-          />
-        </div>
-
-        <div style={{ marginBottom: "10px" }}>
-          <label style={{ marginRight: "10px" }}>Speed: </label>
+        {/* Speed */}
+        <div>
+          <label style={{ marginRight: "10px" }}>Blob Speed: </label>
           <input
             type="range"
-            min="1"
+            min="0.1"
             max="5"
+            step="0.1"
             value={speed}
             onChange={(e) => setSpeed(Number(e.target.value))}
-            style={{ width: "100%" }}
           />
-          <span>{speed}</span>
         </div>
       </div>
 
-      {/* Live Preview with Mouse Movement */}
+      {/* Blob Preview */}
       <div
         style={{
-          margin: "20px auto",
-          position: "relative",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          width: "300px", // Fixed square container for the blob
+          height: "300px", // Fixed square container for the blob
           backgroundColor: backgroundColor,
-          padding: "40px",
+          margin: "0 auto",
           borderRadius: "10px",
-          width: "fit-content",
-          height: "300px",
           overflow: "hidden",
+          position: "relative",
         }}
       >
         <animated.div
           style={{
             ...blobAnimation,
-            position: "absolute", // Absolute positioning for free movement
-            cursor: "move",
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)", // Center the blob in the square
           }}
         />
       </div>
@@ -150,15 +139,15 @@ export function ArtBuilder() {
         onClick={saveArtwork}
         style={{
           padding: "10px 20px",
-          backgroundColor: isSaving ? "#ccc" : "#61dafb",
+          backgroundColor: "#61dafb",
           border: "none",
           borderRadius: "5px",
           color: "#fff",
-          cursor: isSaving ? "not-allowed" : "pointer",
+          cursor: "pointer",
+          marginTop: "20px",
         }}
-        disabled={isSaving}
       >
-        {isSaving ? "Saving..." : "Save Artwork"}
+        Save Artwork
       </button>
     </div>
   );

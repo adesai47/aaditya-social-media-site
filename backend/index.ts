@@ -136,6 +136,36 @@ app.delete("/api/posts/:id", async (req, res) => {
   }
 });
 
+app.post("/api/posts/:id/like", async (req, res) => {
+  const postId = parseInt(req.params.id);
+
+  if (isNaN(postId)) {
+    console.error("Invalid post ID");
+    return res.status(400).json({ error: "Invalid post ID" });
+  }
+
+  try {
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+    });
+
+    if (!post) {
+      console.error("Post not found");
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    const updatedPost = await prisma.post.update({
+      where: { id: postId },
+      data: { likes: { increment: 1 } },
+    });
+
+    res.status(200).json(updatedPost);
+  } catch (error) {
+    console.error("Error liking post:", error); // Log the actual error
+    res.status(500).json({ error: "Failed to like post" });
+  }
+});
+
 // Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
