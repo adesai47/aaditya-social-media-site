@@ -6,6 +6,13 @@ export function ArtBuilder() {
   const [blobColor, setBlobColor] = useState("#61dafb");
   const [backgroundColor, setBackgroundColor] = useState("#252424");
   const [speed, setSpeed] = useState(1);
+  const [blobImage, setBlobImage] = useState(""); // Manage selected image
+
+  const predefinedImages = [
+    { name: "Soccer Ball", src: "/images/soccer-ball.png" },
+    { name: "Emoji Smiley", src: "/images/smiley.png" },
+    { name: "Emoji Heart", src: "/images/heart-emoji.png" },
+  ];
 
   const blobAnimation = useSpring({
     width: blobSize,
@@ -18,6 +25,7 @@ export function ArtBuilder() {
   const saveArtwork = async () => {
     const artworkConfig = {
       blobSize,
+      blobImage,
       blobColor,
       backgroundColor,
       speed,
@@ -79,6 +87,7 @@ export function ArtBuilder() {
             type="color"
             value={blobColor}
             onChange={(e) => setBlobColor(e.target.value)}
+            disabled={!!blobImage} // Disable if an image is selected
           />
         </div>
 
@@ -108,6 +117,19 @@ export function ArtBuilder() {
         </div>
       </div>
 
+      {/* Blob Image Selector */}
+      <div style={{ marginBottom: "20px" }}>
+        <label style={{ marginRight: "10px" }}>Select Blob Image: </label>
+        <select onChange={(e) => setBlobImage(e.target.value)} value={blobImage}>
+          <option value="">None</option>
+          {predefinedImages.map((img) => (
+            <option key={img.src} value={img.src}>
+              {img.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
       {/* Blob Preview */}
       <div
         style={{
@@ -130,6 +152,11 @@ export function ArtBuilder() {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)", // Center the blob in the square
+            backgroundImage: blobImage ? `url(${blobImage})` : "",
+            backgroundSize: "cover",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "center",
+            backgroundColor: blobImage ? "" : blobColor, // Use color if no image selected
           }}
         />
       </div>

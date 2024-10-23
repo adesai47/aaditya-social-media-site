@@ -2,6 +2,8 @@ import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { LoginPage, SignupPage } from "./components/Auth";
 import { ArtBuilder } from "./components/ArtBuilder";
 import { SocialFeed } from "./components/SocialFeed";
+import { DrawingPage } from "./components/DrawingPage"; // New drawing page
+import { DrawingSocialFeed } from "./components/DrawingSocialFeed"; // New social feed for drawings
 
 function App() {
   return (
@@ -22,6 +24,12 @@ function App() {
           <Link to="/art-builder" style={linkStyles}>
             Art Builder
           </Link>
+          <Link to="/drawing-page" style={linkStyles}>
+            Drawing Page
+          </Link>
+          <Link to="/drawing-social-feed" style={linkStyles}>
+            Drawing Social Feed
+          </Link>
         </nav>
       </header>
 
@@ -30,6 +38,8 @@ function App() {
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/social-feed" element={<SocialFeed />} />
         <Route path="/art-builder" element={<ArtBuilder />} />
+        <Route path="/drawing-page" element={<DrawingPage />} />
+        <Route path="/drawing-social-feed" element={<DrawingSocialFeed />} />
       </Routes>
     </Router>
   );
@@ -64,4 +74,3 @@ const linkStyles = {
   fontSize: "18px",
   fontWeight: "bold",
 };
-

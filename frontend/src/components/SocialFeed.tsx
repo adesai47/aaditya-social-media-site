@@ -4,7 +4,6 @@ import { useSpring, animated, useTrail } from "@react-spring/web";
 import useMeasure from "react-use-measure";
 
 const fast = { tension: 1200, friction: 40 };
-const slow = { mass: 10, tension: 200, friction: 50 };
 const trans = (x: number, y: number) =>
   `translate3d(${x}px,${y}px,0) translate3d(-50%,-50%,0)`;
 
@@ -130,8 +129,15 @@ function MovableBlob({ post, handleLike }: { post: any; handleLike: (postId: num
               position: "absolute",
               width: `${post.artConfig.blobSize}px`,
               height: `${post.artConfig.blobSize}px`,
-              backgroundColor: post.artConfig.blobColor,
               borderRadius: "50%",
+              backgroundImage: post.artConfig.blobImage
+                ? `url(${post.artConfig.blobImage})`
+                : "none",
+              backgroundColor: post.artConfig.blobImage
+                ? "transparent" // Set background to transparent if an image is present
+                : post.artConfig.blobColor, // Fallback to color if no image is present
+              backgroundSize: "cover",
+              backgroundPosition: "center",
               transform: props.xy.to(trans),
             }}
           />
