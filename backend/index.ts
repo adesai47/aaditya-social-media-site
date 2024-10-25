@@ -1,6 +1,7 @@
 import express from "express";
 import { PrismaClient } from "@prisma/client";
 import cors from "cors";
+import { requireAuth } from "@clerk/clerk-sdk-node";
 
 // Initialize Prisma Client
 const prisma = new PrismaClient();
@@ -212,6 +213,27 @@ app.post("/api/drawings/:id/like", async (req, res) => {
   } catch (error) {
     console.error("Error liking drawing:", error);
     res.status(500).json({ error: "Failed to like drawing" });
+  }
+});
+
+app.post("/api/posts", requireAuth, async (req, res) => {
+  const { userId, artConfig } = req.body;
+
+  if (!userId || !artConfig) {
+    return res.status(400).json({ error: "Invalid request: missing userId or artConfig" });
+  }
+
+  try {
+    const post = await prisma.post.create({
+      data: {
+        userId,
+        artConfig,
+      },
+    });
+    res.status(201).json(post);
+  } catch (error) {
+    console.error("Error creating post:", error);
+    res.status(500).json({ error: "Failed to create post" });
   }
 });
 
