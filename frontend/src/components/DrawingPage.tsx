@@ -8,7 +8,6 @@ export function DrawingPage() {
   const [backgroundColor, setBackgroundColor] = useState("#ffffff");
 
   useEffect(() => {
-    // Set the initial background color of the canvas when the component mounts
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -16,7 +15,7 @@ export function DrawingPage() {
       ctx.fillStyle = backgroundColor;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
-  }, [backgroundColor]); // Update the background color when it changes
+  }, [backgroundColor]);
 
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
@@ -54,7 +53,7 @@ export function DrawingPage() {
     if (!ctx) return;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = backgroundColor; // Refill the canvas with the new background color
+    ctx.fillStyle = backgroundColor;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   };
 
@@ -85,24 +84,32 @@ export function DrawingPage() {
     <div style={{ textAlign: "center", padding: "20px" }}>
       <h1>Drawing Art Page</h1>
 
-      {/* Canvas */}
-      <canvas
-        ref={canvasRef}
-        width={500}
-        height={500}
+      {/* Centering the canvas */}
+      <div
         style={{
-          border: "1px solid black",
-          cursor: "crosshair",
-          backgroundColor: backgroundColor,
+          display: "flex",
+          justifyContent: "center", // Centers horizontally
+          alignItems: "center", // Centers vertically
+          height: "80vh", // Adjust the height as needed
         }}
-        onMouseDown={startDrawing}
-        onMouseMove={draw}
-        onMouseUp={stopDrawing}
-        onMouseLeave={stopDrawing}
-      />
+      >
+        <canvas
+          ref={canvasRef}
+          width={500}
+          height={500}
+          style={{
+            border: "1px solid black",
+            cursor: "crosshair",
+            backgroundColor: backgroundColor,
+          }}
+          onMouseDown={startDrawing}
+          onMouseMove={draw}
+          onMouseUp={stopDrawing}
+          onMouseLeave={stopDrawing}
+        />
+      </div>
 
       <div style={{ marginTop: "10px" }}>
-        {/* Line Color Picker */}
         <label>Line Color: </label>
         <input
           type="color"
@@ -110,7 +117,6 @@ export function DrawingPage() {
           onChange={(e) => setLineColor(e.target.value)}
         />
 
-        {/* Line Width Picker */}
         <label style={{ marginLeft: "10px" }}>Line Width: </label>
         <input
           type="range"
@@ -120,7 +126,6 @@ export function DrawingPage() {
           onChange={(e) => setLineWidth(Number(e.target.value))}
         />
 
-        {/* Background Color Picker */}
         <label style={{ marginLeft: "10px" }}>Background Color: </label>
         <input
           type="color"
@@ -130,7 +135,6 @@ export function DrawingPage() {
       </div>
 
       <div style={{ marginTop: "20px" }}>
-        {/* Clear and Save Buttons */}
         <button onClick={clearCanvas} style={{ marginRight: "10px" }}>
           Clear
         </button>
