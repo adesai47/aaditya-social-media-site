@@ -115,34 +115,52 @@ app.delete("/api/posts/:id", async (req, res) => {
   }
 });
 
-// Like a post (artwork)
-app.post("/api/posts/:id/like", async (req, res) => {
+// Like or Unlike a post (artwork)
+app.post("/api/posts/:id/like", requireAuth, async (req, res) => {
   const postId = parseInt(req.params.id);
+  const userId = req.auth?.userId;
 
-  if (isNaN(postId)) {
-    console.error("Invalid post ID");
-    return res.status(400).json({ error: "Invalid post ID" });
+  if (!userId || isNaN(postId)) {
+    return res.status(400).json({ error: "Invalid request" });
   }
 
   try {
-    const post = await prisma.post.findUnique({
-      where: { id: postId },
+    const existingLike = await prisma.like.findUnique({
+      where: {
+        postId_userId: {
+          postId,
+          userId,
+        },
+      },
     });
 
-    if (!post) {
-      console.error("Post not found");
-      return res.status(404).json({ error: "Post not found" });
+    if (existingLike) {
+      // Unlike the post
+      await prisma.like.delete({
+        where: { id: existingLike.id },
+      });
+      await prisma.post.update({
+        where: { id: postId },
+        data: { likes: { decrement: 1 } },
+      });
+      return res.status(200).json({ message: "Post unliked" });
+    } else {
+      // Like the post
+      await prisma.like.create({
+        data: {
+          postId,
+          userId,
+        },
+      });
+      await prisma.post.update({
+        where: { id: postId },
+        data: { likes: { increment: 1 } },
+      });
+      return res.status(200).json({ message: "Post liked" });
     }
-
-    const updatedPost = await prisma.post.update({
-      where: { id: postId },
-      data: { likes: { increment: 1 } },
-    });
-
-    res.status(200).json(updatedPost);
   } catch (error) {
-    console.error("Error liking post:", error);
-    res.status(500).json({ error: "Failed to like post" });
+    console.error("Error handling like:", error);
+    res.status(500).json({ error: "Failed to handle like" });
   }
 });
 
@@ -185,55 +203,52 @@ app.get("/api/drawings", async (req, res) => {
   }
 });
 
-// Like a drawing post
-app.post("/api/drawings/:id/like", async (req, res) => {
+// Like or Unlike a drawing post
+app.post("/api/drawings/:id/like", requireAuth, async (req, res) => {
   const drawingId = parseInt(req.params.id);
+  const userId = req.auth?.userId;
 
-  if (isNaN(drawingId)) {
-    console.error("Invalid drawing ID");
-    return res.status(400).json({ error: "Invalid drawing ID" });
+  if (!userId || isNaN(drawingId)) {
+    return res.status(400).json({ error: "Invalid request" });
   }
 
   try {
-    const drawing = await prisma.drawing.findUnique({
-      where: { id: drawingId },
-    });
-
-    if (!drawing) {
-      console.error("Drawing not found");
-      return res.status(404).json({ error: "Drawing not found" });
-    }
-
-    const updatedDrawing = await prisma.drawing.update({
-      where: { id: drawingId },
-      data: { likes: { increment: 1 } },
-    });
-
-    res.status(200).json(updatedDrawing);
-  } catch (error) {
-    console.error("Error liking drawing:", error);
-    res.status(500).json({ error: "Failed to like drawing" });
-  }
-});
-
-app.post("/api/posts", requireAuth, async (req, res) => {
-  const { userId, artConfig } = req.body;
-
-  if (!userId || !artConfig) {
-    return res.status(400).json({ error: "Invalid request: missing userId or artConfig" });
-  }
-
-  try {
-    const post = await prisma.post.create({
-      data: {
-        userId,
-        artConfig,
+    const existingLike = await prisma.like.findUnique({
+      where: {
+        drawingId_userId: {
+          drawingId,
+          userId,
+        },
       },
     });
-    res.status(201).json(post);
+
+    if (existingLike) {
+      // Unlike the drawing
+      await prisma.like.delete({
+        where: { id: existingLike.id },
+      });
+      await prisma.drawing.update({
+        where: { id: drawingId },
+        data: { likes: { decrement: 1 } },
+      });
+      return res.status(200).json({ message: "Drawing unliked" });
+    } else {
+      // Like the drawing
+      await prisma.like.create({
+        data: {
+          drawingId,
+          userId,
+        },
+      });
+      await prisma.drawing.update({
+        where: { id: drawingId },
+        data: { likes: { increment: 1 } },
+      });
+      return res.status(200).json({ message: "Drawing liked" });
+    }
   } catch (error) {
-    console.error("Error creating post:", error);
-    res.status(500).json({ error: "Failed to create post" });
+    console.error("Error handling like:", error);
+    return res.status(500).json({ error: "Failed to handle like" });
   }
 });
 
@@ -251,21 +266,6 @@ app.delete("/api/drawings/:id", async (req, res) => {
   } catch (error) {
     console.error("Error deleting drawing:", error);
     res.status(500).json({ error: "Failed to delete drawing" });
-  }
-});
-
-// Delete a blob art post by ID
-app.delete("/api/posts/:id", async (req, res) => {
-  const { id } = req.params;
-
-  try {
-    await prisma.post.delete({
-      where: { id: parseInt(id) },
-    });
-    res.status(204).send();
-  } catch (error) {
-    console.error("Error deleting post:", error);
-    res.status(500).json({ error: "Failed to delete post" });
   }
 });
 

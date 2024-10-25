@@ -10,6 +10,7 @@ const trans = (x: number, y: number) =>
 // SocialFeed component that contains the saved blob art posts with animation and delete functionality
 export function SocialFeed() {
   const [posts, setPosts] = useState([]);
+  const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     async function fetchPosts() {
@@ -29,13 +30,30 @@ export function SocialFeed() {
   }, []);
 
   const handleLike = async (postId: number) => {
-    try {
+    const isLiked = likedPosts.has(postId);
+    const newLikedPosts = new Set(likedPosts);
+    if (isLiked) {
+      newLikedPosts.delete(postId);
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post.id === postId ? { ...post, likes: post.likes - 1 } : post
+        )
+      );
+      await unlikePost(postId); // Call the unlike API
+    } else {
+      newLikedPosts.add(postId);
       setPosts((prevPosts) =>
         prevPosts.map((post) =>
           post.id === postId ? { ...post, likes: post.likes + 1 } : post
         )
       );
+      await likePost(postId); // Call the like API
+    }
+    setLikedPosts(newLikedPosts);
+  };
 
+  const likePost = async (postId: number) => {
+    try {
       const response = await fetch(`http://localhost:3000/api/posts/${postId}/like`, {
         method: "POST",
       });
@@ -45,6 +63,20 @@ export function SocialFeed() {
       }
     } catch (error) {
       console.error("Error liking post:", error);
+    }
+  };
+
+  const unlikePost = async (postId: number) => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/posts/${postId}/unlike`, {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to unlike post.");
+      }
+    } catch (error) {
+      console.error("Error unliking post:", error);
     }
   };
 
@@ -78,7 +110,13 @@ export function SocialFeed() {
       {/* Posts container */}
       <div style={{ padding: "10px" }}>
         {posts.map((post) => (
-          <MovableBlob key={post.id} post={post} handleLike={handleLike} handleDelete={handleDelete} />
+          <MovableBlob
+            key={post.id}
+            post={post}
+            handleLike={handleLike}
+            handleDelete={handleDelete}
+            isLiked={likedPosts.has(post.id)}
+          />
         ))}
       </div>
     </div>
@@ -90,10 +128,12 @@ function MovableBlob({
   post,
   handleLike,
   handleDelete,
+  isLiked,
 }: {
   post: any;
   handleLike: (postId: number) => void;
   handleDelete: (postId: number) => void;
+  isLiked: boolean;
 }) {
   const [isActive, setIsActive] = useState(false); // Track if the blob is following the cursor
   const [ref, bounds] = useMeasure(); // Each blob has its own measure
@@ -125,7 +165,7 @@ function MovableBlob({
   return (
     <div style={postContainerStyles}>
       <h2 style={{ color: "#333", marginBottom: "10px" }}>
-        {post.user?.name || "Unknown User"}
+        {post.user?.name || post.userEmail || "Unknown User"}
       </h2>
 
       {/* Movable Blob with Trail Animation */}
@@ -168,7 +208,7 @@ function MovableBlob({
 
       {/* Like and Delete actions */}
       <div style={actionContainerStyles}>
-        {/* Heart icon with a like counter */}
+        {/* Heart icon with a like/unlike counter */}
         <div
           onClick={() => handleLike(post.id)}
           style={{
@@ -223,8 +263,6 @@ const postContainerStyles = {
   margin: "20px auto",  // Center the post and maintain vertical spacing
   textAlign: "center",
 };
-
-
 
 const actionContainerStyles = {
   display: "flex",

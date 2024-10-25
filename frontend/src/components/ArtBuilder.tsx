@@ -57,9 +57,11 @@ export function ArtBuilder() {
         textAlign: "center",
         maxWidth: "800px",
         margin: "0 auto",
+        borderRadius: "12px",
+        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
       }}
     >
-      <h1 style={{ color: "#333" }}>Art Editor</h1>
+      <h1 style={{ color: "#333", fontSize: "28px", fontWeight: "bold" }}>Art Editor</h1>
 
       {/* Options */}
       <div
@@ -168,10 +170,11 @@ export function ArtBuilder() {
           padding: "10px 20px",
           backgroundColor: "#61dafb",
           border: "none",
-          borderRadius: "5px",
+          borderRadius: "8px",
           color: "#fff",
           cursor: "pointer",
           marginTop: "20px",
+          transition: "background-color 0.3s ease",
         }}
       >
         Save Artwork
