@@ -237,6 +237,40 @@ app.post("/api/posts", requireAuth, async (req, res) => {
   }
 });
 
+// Delete a drawing post by ID
+app.delete("/api/drawings/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await prisma.drawing.delete({
+      where: {
+        id: parseInt(id),
+      },
+    });
+    res.status(204).send(); // Successfully deleted with no content
+  } catch (error) {
+    console.error("Error deleting drawing:", error);
+    res.status(500).json({ error: "Failed to delete drawing" });
+  }
+});
+
+// Delete a blob art post by ID
+app.delete("/api/posts/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await prisma.post.delete({
+      where: { id: parseInt(id) },
+    });
+    res.status(204).send();
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    res.status(500).json({ error: "Failed to delete post" });
+  }
+});
+
+
+
 // Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
