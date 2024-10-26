@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FaHeart, FaTrashAlt } from "react-icons/fa"; // Import heart and trash icons from react-icons
-import { useSpring, animated, useTrail } from "@react-spring/web";
+import { animated, useTrail } from "@react-spring/web";
 import useMeasure from "react-use-measure";
 
 const fast = { tension: 1200, friction: 40 };
