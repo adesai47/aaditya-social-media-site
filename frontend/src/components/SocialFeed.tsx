@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FaHeart, FaTrashAlt } from "react-icons/fa"; // Import heart and trash icons from react-icons
-import { animated, useTrail } from "@react-spring/web";
+import { useSpring, animated, useTrail } from "@react-spring/web";
 import useMeasure from "react-use-measure";
 
 const fast = { tension: 1200, friction: 40 };
@@ -182,7 +182,7 @@ function MovableBlob({
         onClick={toggleBlobActive}
         style={{
           position: "relative",
-          backgroundColor: post.artConfig.backgroundColor || "#252424",
+          backgroundColor: post.artConfig.backgroundColor || "#000",
           padding: "40px",
           borderRadius: "10px",
           marginBottom: "20px",
@@ -214,9 +214,9 @@ function MovableBlob({
       <div style={actionContainerStyles}>
         <div onClick={() => handleLike(post.id)} style={likeButtonStyles}>
           <div style={{ marginRight: "8px" }}>
-            <FaHeart color={isLiked ? "red" : "#888"} size={20} />
+            <FaHeart color={isLiked ? "#61dafb" : "#888"} size={20} />
           </div>
-          <span>{post.likes}</span>
+          <span style={{ color: isLiked ? "#61dafb" : "#888" }}>{post.likes}</span>
         </div>
 
         <div onClick={() => handleDelete(post.id)} style={deleteButtonStyles}>
@@ -227,15 +227,16 @@ function MovableBlob({
   );
 }
 
-// Inline Styles
+// Inline Styles with primary colors black and blue
 const containerStyles: React.CSSProperties = {
   padding: "20px",
-  backgroundColor: "#f5f5f5",
+  backgroundColor: "#000",
+  color: "#61dafb",
 };
 
 const titleStyles: React.CSSProperties = {
   textAlign: "center",
-  color: "#333",
+  color: "#61dafb",
   fontSize: "32px",
   fontWeight: "bold",
   marginBottom: "20px",
@@ -247,18 +248,18 @@ const postsContainerStyles: React.CSSProperties = {
 
 const postContainerStyles: React.CSSProperties = {
   padding: "15px",
-  border: "1px solid #ddd",
+  border: "1px solid #61dafb",
   borderRadius: "10px",
   marginBottom: "30px",
-  backgroundColor: "#fff",
-  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+  backgroundColor: "#111",
+  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.5)",
   width: "500px",
   margin: "20px auto",
   textAlign: "center",
 };
 
 const userNameStyles: React.CSSProperties = {
-  color: "#333",
+  color: "#61dafb",
   marginBottom: "10px",
 };
 
@@ -273,6 +274,7 @@ const likeButtonStyles: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
   cursor: "pointer",
+  color: "#61dafb",
 };
 
 const deleteButtonStyles: React.CSSProperties = {
@@ -280,4 +282,5 @@ const deleteButtonStyles: React.CSSProperties = {
   alignItems: "center",
   cursor: "pointer",
   marginLeft: "15px",
+  color: "#888",
 };

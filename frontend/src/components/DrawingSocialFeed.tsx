@@ -1,18 +1,19 @@
-import { useEffect, useState } from "react";
-import { FaHeart, FaTrashAlt } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
+import { FaHeart, FaTrashAlt } from "react-icons/fa"; // Heart and Trash icons from react-icons
 
 // Define the structure of a post
-interface Post {
+interface DrawingPost {
   id: number;
   user?: {
     name?: string;
   };
+  userEmail?: string;
   likes: number;
   drawing: string;
 }
 
 export function DrawingSocialFeed() {
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<DrawingPost[]>([]); // Set posts state with type DrawingPost[]
 
   useEffect(() => {
     async function fetchPosts() {
@@ -21,7 +22,7 @@ export function DrawingSocialFeed() {
         if (!response.ok) {
           throw new Error("Failed to fetch posts.");
         }
-        const data: Post[] = await response.json();
+        const data: DrawingPost[] = await response.json();
         setPosts(data);
       } catch (error) {
         console.error("Error fetching posts:", error);
@@ -76,21 +77,22 @@ export function DrawingSocialFeed() {
     <div style={containerStyles}>
       <h1 style={titleStyles}>Drawing Social Feed</h1>
 
+      {/* Posts container */}
       <div style={postsContainerStyles}>
         {posts.map((post) => (
           <div key={post.id} style={postContainerStyles}>
-            <h2 style={userNameStyles}>{post.user?.name || "Unknown User"}</h2>
+            <h2 style={userNameStyles}>{post.user?.name || post.userEmail || "Unknown User"}</h2>
 
+            {/* Display the saved drawing */}
             <div style={drawingContainerStyles}>
               <img src={post.drawing} alt="User Drawing" style={imageStyles} />
             </div>
 
+            {/* Like and Delete actions */}
             <div style={actionContainerStyles}>
               <div onClick={() => handleLike(post.id)} style={likeButtonStyles}>
-                <div style={{ marginRight: "8px" }}>
-                  <FaHeart color="red" size={20} />
-                </div>
-                <span>{isNaN(post.likes) ? 0 : post.likes}</span>
+                <FaHeart color="#61dafb" size={20} style={{ marginRight: "8px" }} />
+                <span>{post.likes}</span>
               </div>
 
               <div onClick={() => handleDelete(post.id)} style={deleteButtonStyles}>
@@ -104,15 +106,16 @@ export function DrawingSocialFeed() {
   );
 }
 
-// Inline Styles
+// Inline Styles with primary colors black and blue
 const containerStyles: React.CSSProperties = {
   padding: "20px",
-  backgroundColor: "#f5f5f5",
+  backgroundColor: "#000",
+  color: "#61dafb",
 };
 
 const titleStyles: React.CSSProperties = {
   textAlign: "center",
-  color: "#333",
+  color: "#61dafb",
   fontSize: "32px",
   fontWeight: "bold",
   marginBottom: "20px",
@@ -124,18 +127,18 @@ const postsContainerStyles: React.CSSProperties = {
 
 const postContainerStyles: React.CSSProperties = {
   padding: "15px",
-  border: "1px solid #ddd",
+  border: "1px solid #61dafb",
   borderRadius: "10px",
   marginBottom: "30px",
-  backgroundColor: "#fff",
-  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-  width: "350px",
+  backgroundColor: "#111",
+  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.5)",
+  width: "500px",
   margin: "20px auto",
   textAlign: "center",
 };
 
 const userNameStyles: React.CSSProperties = {
-  color: "#333",
+  color: "#61dafb",
   marginBottom: "10px",
 };
 
@@ -164,6 +167,7 @@ const likeButtonStyles: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
   cursor: "pointer",
+  color: "#61dafb",
 };
 
 const deleteButtonStyles: React.CSSProperties = {
@@ -171,4 +175,5 @@ const deleteButtonStyles: React.CSSProperties = {
   alignItems: "center",
   cursor: "pointer",
   marginLeft: "15px",
+  color: "#888",
 };

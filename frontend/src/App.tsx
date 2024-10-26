@@ -1,5 +1,5 @@
 import { Routes, Route, useNavigate } from "react-router-dom";
-import { SignedIn, SignedOut, SignInButton, UserButton, RedirectToSignIn } from "@clerk/clerk-react";
+import { SignIn, SignedIn, SignedOut, SignInButton, UserButton, RedirectToSignIn } from "@clerk/clerk-react";
 import { ArtBuilder } from "./components/ArtBuilder";
 import { SocialFeed } from "./components/SocialFeed";
 import { DrawingPage } from "./components/DrawingPage";
@@ -22,7 +22,7 @@ function App() {
         
         {/* Centered Navigation */}
         <nav style={navStyles}>
-          {/* Feeds Tab (Replaced with RadioTower Icon) */}
+          {/* Feeds Tab */}
           <div 
             style={iconTabStyles} 
             onMouseEnter={() => setFeedDropdownOpen(true)} 
@@ -31,7 +31,7 @@ function App() {
               setHoveredFeed(null); // Reset hovered feed item on mouse leave
             }}
           >
-            <RadioTower style={iconStyles} className="icon-pop" /> {/* Using the RadioTower icon */}
+            <RadioTower style={iconStyles} className="icon-pop" />
             
             {/* Dropdown for feeds */}
             {feedDropdownOpen && (
@@ -39,7 +39,7 @@ function App() {
                 <div 
                   style={{
                     ...dropdownItemStyles,
-                    backgroundColor: hoveredFeed === "socialFeed" ? "#333" : "#444", // Darker on hover
+                    backgroundColor: hoveredFeed === "socialFeed" ? "#333" : "#444",
                   }}
                   onMouseEnter={() => setHoveredFeed("socialFeed")}
                   onMouseLeave={() => setHoveredFeed(null)}
@@ -50,7 +50,7 @@ function App() {
                 <div 
                   style={{
                     ...dropdownItemStyles,
-                    backgroundColor: hoveredFeed === "drawingFeed" ? "#333" : "#444", // Darker on hover
+                    backgroundColor: hoveredFeed === "drawingFeed" ? "#333" : "#444",
                   }}
                   onMouseEnter={() => setHoveredFeed("drawingFeed")}
                   onMouseLeave={() => setHoveredFeed(null)}
@@ -62,16 +62,16 @@ function App() {
             )}
           </div>
 
-          {/* Editor Tab (Replaced with PencilRuler Icon) */}
+          {/* Editor Tab */}
           <div 
             style={iconTabStyles}
             onMouseEnter={() => setDropdownOpen(true)} 
             onMouseLeave={() => {
               setDropdownOpen(false);
-              setHoveredItem(null); // Reset hovered item on mouse leave
+              setHoveredItem(null);
             }}
           >
-            <PencilRuler style={iconStyles} className="icon-pop" />  {/* Using the PencilRuler icon */}
+            <PencilRuler style={iconStyles} className="icon-pop" />
             
             {/* Dropdown options */}
             {dropdownOpen && (
@@ -79,7 +79,7 @@ function App() {
                 <div 
                   style={{
                     ...dropdownItemStyles,
-                    backgroundColor: hoveredItem === "blob" ? "#333" : "#444", // Darker on hover
+                    backgroundColor: hoveredItem === "blob" ? "#333" : "#444",
                   }}
                   onMouseEnter={() => setHoveredItem("blob")}
                   onMouseLeave={() => setHoveredItem(null)}
@@ -90,7 +90,7 @@ function App() {
                 <div 
                   style={{
                     ...dropdownItemStyles,
-                    backgroundColor: hoveredItem === "drawing" ? "#333" : "#444", // Darker on hover
+                    backgroundColor: hoveredItem === "drawing" ? "#333" : "#444",
                   }}
                   onMouseEnter={() => setHoveredItem("drawing")}
                   onMouseLeave={() => setHoveredItem(null)}
@@ -111,7 +111,7 @@ function App() {
       </header>
 
       <Routes>
-        {/* Protected routes: Require the user to be signed in */}
+        {/* Protected routes */}
         <Route path="/social-feed" element={<SignedIn><SocialFeed /></SignedIn>} />
         <Route path="/art-builder" element={<SignedIn><ArtBuilder /></SignedIn>} />
         <Route path="/drawing-page" element={<SignedIn><DrawingPage /></SignedIn>} />
@@ -127,37 +127,37 @@ function App() {
 export default App;
 
 // Inline Styles
-const headerStyles = {
+const headerStyles: React.CSSProperties = {
   display: "flex",
-  justifyContent: "space-between", // Ensures space between elements
-  alignItems: "center",            // Vertically aligns items in the center
+  justifyContent: "space-between",
+  alignItems: "center",
   padding: "20px",
-  backgroundColor: "#252424",
-  color: "#fff",
+  backgroundColor: "#000",
+  color: "#61dafb",
   boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
 };
 
-const titleStyles = {
+const titleStyles: React.CSSProperties = {
   fontSize: "24px",
   fontWeight: "bold",
-  flex: 1, // Takes up available space
+  color: "#61dafb",
+  flex: 1, // Takes up available space on the left side
 };
 
-const navStyles = {
+const navStyles: React.CSSProperties = {
   display: "flex",
-  justifyContent: "center", // Centers the navigation items
+  justifyContent: "center", // Centers the icons in the header
   gap: "20px",
-  flex: 1, // Takes up available space between title and authentication buttons
+  flex: 1, // Centers the icons between title and authentication buttons
 };
 
-const authButtonStyles = {
+const authButtonStyles: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
   justifyContent: "flex-end",
-  flex: 1, // Takes up available space and aligns to the right
+  flex: 1, // Takes up available space on the right side
 };
 
-// Reused for both the Editor and Feeds tabs
 const iconTabStyles: React.CSSProperties = {
   position: "relative",
   display: "inline-block",
@@ -174,30 +174,27 @@ const dropdownStyles: React.CSSProperties = {
   zIndex: 1000,
 };
 
-const dropdownItemStyles = {
+const dropdownItemStyles: React.CSSProperties = {
   padding: "8px 16px",
   color: "#fff",
   backgroundColor: "#444",
   cursor: "pointer",
-  textDecoration: "none",
   transition: "background-color 0.2s ease-in-out",
 };
 
-const iconStyles = {
-  width: "24px", // Adjust the size as needed
+const iconStyles: React.CSSProperties = {
+  width: "24px",
   height: "24px", 
-  color: "#61dafb", // Use a matching color
-  transition: "transform 0.2s ease-in-out", // Adding transition for smooth pop-out effect
+  color: "#61dafb",
+  transition: "transform 0.2s ease-in-out",
 };
 
-// Custom CSS class for pop-out effect on hover
 const popOutStyles = `
 .icon-pop:hover {
-  transform: scale(1.2);  /* Make the icon 20% larger on hover */
-}
-`;
+  transform: scale(1.2);
+}`;
 
-// Add the custom CSS to the document
+// Add custom CSS to the document
 const styleElement = document.createElement("style");
 styleElement.textContent = popOutStyles;
 document.head.appendChild(styleElement);
