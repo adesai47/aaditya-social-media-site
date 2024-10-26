@@ -1,8 +1,18 @@
-import React, { useEffect, useState } from "react";
-import { FaHeart, FaTrashAlt } from "react-icons/fa"; // Heart and Trash icons from react-icons
+import { useEffect, useState } from "react";
+import { FaHeart, FaTrashAlt } from "react-icons/fa";
+
+// Define the structure of a post
+interface Post {
+  id: number;
+  user?: {
+    name?: string;
+  };
+  likes: number;
+  drawing: string;
+}
 
 export function DrawingSocialFeed() {
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState<Post[]>([]);
 
   useEffect(() => {
     async function fetchPosts() {
@@ -11,7 +21,7 @@ export function DrawingSocialFeed() {
         if (!response.ok) {
           throw new Error("Failed to fetch posts.");
         }
-        const data = await response.json();
+        const data: Post[] = await response.json();
         setPosts(data);
       } catch (error) {
         console.error("Error fetching posts:", error);
@@ -41,7 +51,6 @@ export function DrawingSocialFeed() {
     }
   };
 
-  // Handle post deletion
   const handleDelete = async (postId: number) => {
     const confirmDelete = window.confirm("Are you sure you want to delete this post?");
     if (!confirmDelete) return;
@@ -55,7 +64,6 @@ export function DrawingSocialFeed() {
         throw new Error("Failed to delete post.");
       }
 
-      // Remove the deleted post from the state
       setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
 
       alert("Post deleted successfully.");
@@ -65,68 +73,29 @@ export function DrawingSocialFeed() {
   };
 
   return (
-    <div style={{ padding: "20px", backgroundColor: "#f5f5f5" }}>
+    <div style={containerStyles}>
       <h1 style={titleStyles}>Drawing Social Feed</h1>
 
-      {/* Posts container */}
-      <div style={{ padding: "10px" }}>
+      <div style={postsContainerStyles}>
         {posts.map((post) => (
-          <div
-            key={post.id}
-            style={postContainerStyles}
-          >
-            <h2 style={{ color: "#333", marginBottom: "10px" }}>
-              {post.user?.name || "Unknown User"}
-            </h2>
+          <div key={post.id} style={postContainerStyles}>
+            <h2 style={userNameStyles}>{post.user?.name || "Unknown User"}</h2>
 
-            {/* Display the saved drawing */}
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                marginBottom: "10px",
-              }}
-            >
-              <img
-                src={post.drawing}
-                alt="User Drawing"
-                style={imageStyles}
-              />
+            <div style={drawingContainerStyles}>
+              <img src={post.drawing} alt="User Drawing" style={imageStyles} />
             </div>
 
-            {/* Like and Delete actions */}
             <div style={actionContainerStyles}>
-              {/* Heart icon with a like counter */}
-              <div
-                onClick={() => handleLike(post.id)}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  cursor: "pointer",
-                }}
-              >
-                <FaHeart
-                  style={{
-                    color: "red",
-                    fontSize: "20px",
-                    marginRight: "8px",
-                  }}
-                />
+              <div onClick={() => handleLike(post.id)} style={likeButtonStyles}>
+                <div style={{ marginRight: "8px" }}>
+                  <FaHeart color="red" size={20} />
+                </div>
                 <span>{isNaN(post.likes) ? 0 : post.likes}</span>
               </div>
 
-              {/* Delete icon */}
-              <FaTrashAlt
-                onClick={() => handleDelete(post.id)}
-                style={{
-                  color: "#888",
-                  fontSize: "20px",
-                  marginLeft: "15px",
-                  cursor: "pointer",
-                }}
-                title="Delete Post"
-              />
+              <div onClick={() => handleDelete(post.id)} style={deleteButtonStyles}>
+                <FaTrashAlt color="#888" size={20} />
+              </div>
             </div>
           </div>
         ))}
@@ -136,37 +105,70 @@ export function DrawingSocialFeed() {
 }
 
 // Inline Styles
-const titleStyles = {
+const containerStyles: React.CSSProperties = {
+  padding: "20px",
+  backgroundColor: "#f5f5f5",
+};
+
+const titleStyles: React.CSSProperties = {
   textAlign: "center",
   color: "#333",
-  fontSize: "32px",  // Increased font size
-  fontWeight: "bold",  // Bold text
-  marginBottom: "20px", // Add spacing below the title
+  fontSize: "32px",
+  fontWeight: "bold",
+  marginBottom: "20px",
 };
 
-const postContainerStyles = {
-  padding: "15px",  // Slightly increased padding for content
+const postsContainerStyles: React.CSSProperties = {
+  padding: "10px",
+};
+
+const postContainerStyles: React.CSSProperties = {
+  padding: "15px",
   border: "1px solid #ddd",
   borderRadius: "10px",
-  marginBottom: "30px",  // Increased margin between posts for better spacing
+  marginBottom: "30px",
   backgroundColor: "#fff",
-  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",  // Added shadow for elevation effect
-  width: "350px",  // Smaller width to resemble a social media post
-  margin: "20px auto",  // Center the post on the page and add vertical spacing
+  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+  width: "350px",
+  margin: "20px auto",
   textAlign: "center",
 };
 
-
-const imageStyles = {
-  maxWidth: "100%",   // Ensure the image fits within the post
-  maxHeight: "300px",  // Set a max height for the image
-  borderRadius: "6px", // Slightly round the corners of the image
-  objectFit: "cover",  // Maintain aspect ratio, filling the container
+const userNameStyles: React.CSSProperties = {
+  color: "#333",
+  marginBottom: "10px",
 };
 
-const actionContainerStyles = {
+const drawingContainerStyles: React.CSSProperties = {
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  marginTop: "10px", // Add some space between the image and the actions
+  marginBottom: "10px",
+};
+
+const imageStyles: React.CSSProperties = {
+  maxWidth: "100%",
+  maxHeight: "300px",
+  borderRadius: "6px",
+  objectFit: "cover",
+};
+
+const actionContainerStyles: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  marginTop: "10px",
+};
+
+const likeButtonStyles: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  cursor: "pointer",
+};
+
+const deleteButtonStyles: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  cursor: "pointer",
+  marginLeft: "15px",
 };

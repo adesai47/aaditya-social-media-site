@@ -1,5 +1,5 @@
-import { Routes, Route, Link, useNavigate } from "react-router-dom";
-import { SignIn, SignedIn, SignedOut, SignInButton, UserButton, RedirectToSignIn } from "@clerk/clerk-react";
+import { Routes, Route, useNavigate } from "react-router-dom";
+import { SignedIn, SignedOut, SignInButton, UserButton, RedirectToSignIn } from "@clerk/clerk-react";
 import { ArtBuilder } from "./components/ArtBuilder";
 import { SocialFeed } from "./components/SocialFeed";
 import { DrawingPage } from "./components/DrawingPage";
@@ -150,13 +150,6 @@ const navStyles = {
   flex: 1, // Takes up available space between title and authentication buttons
 };
 
-const linkStyles = {
-  color: "#61dafb",
-  textDecoration: "none",
-  fontSize: "18px",
-  fontWeight: "bold",
-};
-
 const authButtonStyles = {
   display: "flex",
   alignItems: "center",
@@ -165,13 +158,13 @@ const authButtonStyles = {
 };
 
 // Reused for both the Editor and Feeds tabs
-const iconTabStyles = {
+const iconTabStyles: React.CSSProperties = {
   position: "relative",
   display: "inline-block",
   cursor: "pointer",
 };
 
-const dropdownStyles = {
+const dropdownStyles: React.CSSProperties = {
   position: "absolute",
   top: "100%",
   left: 0,
