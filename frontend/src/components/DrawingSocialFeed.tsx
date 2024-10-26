@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaHeart, FaTrashAlt } from "react-icons/fa";
 
 // Define the structure of a post
@@ -65,7 +65,6 @@ export function DrawingSocialFeed() {
       }
 
       setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
-
       alert("Post deleted successfully.");
     } catch (error) {
       console.error("Error deleting post:", error);
@@ -73,29 +72,37 @@ export function DrawingSocialFeed() {
   };
 
   return (
-    <div style={containerStyles}>
+    <div style={{ padding: "20px", backgroundColor: "#000" }}>
       <h1 style={titleStyles}>Drawing Social Feed</h1>
 
-      <div style={postsContainerStyles}>
+      <div style={{ padding: "10px" }}>
         {posts.map((post) => (
           <div key={post.id} style={postContainerStyles}>
-            <h2 style={userNameStyles}>{post.user?.name || "Unknown User"}</h2>
+            <h2 style={{ color: "#61dafb", marginBottom: "10px" }}>
+              {post.user?.name || "Unknown User"}
+            </h2>
 
-            <div style={drawingContainerStyles}>
+            <div style={imageContainerStyles}>
               <img src={post.drawing} alt="User Drawing" style={imageStyles} />
             </div>
 
             <div style={actionContainerStyles}>
-              <div onClick={() => handleLike(post.id)} style={likeButtonStyles}>
-                <div style={{ marginRight: "8px" }}>
+              <div
+                onClick={() => handleLike(post.id)}
+                style={{ display: "flex", alignItems: "center", cursor: "pointer" }}
+              >
+                <span style={{ marginRight: "8px" }}>
                   <FaHeart color="red" size={20} />
-                </div>
+                </span>
                 <span>{isNaN(post.likes) ? 0 : post.likes}</span>
               </div>
 
-              <div onClick={() => handleDelete(post.id)} style={deleteButtonStyles}>
+              <span
+                onClick={() => handleDelete(post.id)}
+                style={{ marginLeft: "15px", cursor: "pointer" }}
+              >
                 <FaTrashAlt color="#888" size={20} />
-              </div>
+              </span>
             </div>
           </div>
         ))}
@@ -105,41 +112,27 @@ export function DrawingSocialFeed() {
 }
 
 // Inline Styles
-const containerStyles: React.CSSProperties = {
-  padding: "20px",
-  backgroundColor: "#f5f5f5",
-};
-
 const titleStyles: React.CSSProperties = {
   textAlign: "center",
-  color: "#333",
+  color: "#61dafb",
   fontSize: "32px",
   fontWeight: "bold",
   marginBottom: "20px",
 };
 
-const postsContainerStyles: React.CSSProperties = {
-  padding: "10px",
-};
-
 const postContainerStyles: React.CSSProperties = {
   padding: "15px",
-  border: "1px solid #ddd",
+  border: "1px solid #333",
   borderRadius: "10px",
   marginBottom: "30px",
-  backgroundColor: "#fff",
-  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+  backgroundColor: "#111",
+  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.3)",
   width: "350px",
   margin: "20px auto",
   textAlign: "center",
 };
 
-const userNameStyles: React.CSSProperties = {
-  color: "#333",
-  marginBottom: "10px",
-};
-
-const drawingContainerStyles: React.CSSProperties = {
+const imageContainerStyles: React.CSSProperties = {
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
@@ -158,17 +151,4 @@ const actionContainerStyles: React.CSSProperties = {
   justifyContent: "center",
   alignItems: "center",
   marginTop: "10px",
-};
-
-const likeButtonStyles: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  cursor: "pointer",
-};
-
-const deleteButtonStyles: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  cursor: "pointer",
-  marginLeft: "15px",
 };
