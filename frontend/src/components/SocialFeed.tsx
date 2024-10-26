@@ -1,15 +1,30 @@
 import React, { useState, useEffect } from "react";
 import { FaHeart, FaTrashAlt } from "react-icons/fa"; // Import heart and trash icons from react-icons
-import { useSpring, animated, useTrail } from "@react-spring/web";
+import { animated, useTrail } from "@react-spring/web";
 import useMeasure from "react-use-measure";
 
 const fast = { tension: 1200, friction: 40 };
 const trans = (x: number, y: number) =>
   `translate3d(${x}px,${y}px,0) translate3d(-50%,-50%,0)`;
 
-// SocialFeed component that contains the saved blob art posts with animation and delete functionality
+// Define the structure of a post
+interface Post {
+  id: number;
+  user?: {
+    name?: string;
+  };
+  userEmail?: string;
+  likes: number;
+  artConfig: {
+    backgroundColor?: string;
+    blobColor?: string;
+    blobImage?: string;
+    blobSize: number;
+  };
+}
+
 export function SocialFeed() {
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
 
   useEffect(() => {
@@ -80,7 +95,6 @@ export function SocialFeed() {
     }
   };
 
-  // Handle post deletion
   const handleDelete = async (postId: number) => {
     const confirmDelete = window.confirm("Are you sure you want to delete this post?");
     if (!confirmDelete) return;
@@ -94,7 +108,6 @@ export function SocialFeed() {
         throw new Error("Failed to delete post.");
       }
 
-      // Remove the deleted post from the state
       setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
 
       alert("Post deleted successfully.");
@@ -104,11 +117,10 @@ export function SocialFeed() {
   };
 
   return (
-    <div style={{ padding: "20px", backgroundColor: "#f5f5f5" }}>
+    <div style={containerStyles}>
       <h1 style={titleStyles}>Blob Social Feed</h1>
 
-      {/* Posts container */}
-      <div style={{ padding: "10px" }}>
+      <div style={postsContainerStyles}>
         {posts.map((post) => (
           <MovableBlob
             key={post.id}
@@ -123,26 +135,24 @@ export function SocialFeed() {
   );
 }
 
-// MovableBlob component with applied useTrail animation for each saved post
 function MovableBlob({
   post,
   handleLike,
   handleDelete,
   isLiked,
 }: {
-  post: any;
+  post: Post;
   handleLike: (postId: number) => void;
   handleDelete: (postId: number) => void;
   isLiked: boolean;
 }) {
-  const [isActive, setIsActive] = useState(false); // Track if the blob is following the cursor
-  const [ref, bounds] = useMeasure(); // Each blob has its own measure
+  const [isActive, setIsActive] = useState(false);
+  const [ref, bounds] = useMeasure();
   const [trail, api] = useTrail(3, () => ({
-    xy: [bounds.width / 2, bounds.height / 2], // Start in the center
+    xy: [bounds.width / 2, bounds.height / 2],
     config: fast,
   }));
 
-  // Ensure position is updated correctly when bounds change
   useEffect(() => {
     if (bounds.width > 0 && bounds.height > 0) {
       api.start({ xy: [bounds.width / 2, bounds.height / 2] });
@@ -158,21 +168,18 @@ function MovableBlob({
   };
 
   const toggleBlobActive = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.stopPropagation(); // Prevent click events from affecting other blobs
-    setIsActive((prevActive) => !prevActive); // Toggle the blob's active state
+    e.stopPropagation();
+    setIsActive((prevActive) => !prevActive);
   };
 
   return (
     <div style={postContainerStyles}>
-      <h2 style={{ color: "#333", marginBottom: "10px" }}>
-        {post.user?.name || post.userEmail || "Unknown User"}
-      </h2>
+      <h2 style={userNameStyles}>{post.user?.name || post.userEmail || "Unknown User"}</h2>
 
-      {/* Movable Blob with Trail Animation */}
       <div
         ref={ref}
         onMouseMove={handleBlobMouseMove}
-        onClick={toggleBlobActive} // Toggle following on click
+        onClick={toggleBlobActive}
         style={{
           position: "relative",
           backgroundColor: post.artConfig.backgroundColor || "#252424",
@@ -180,8 +187,8 @@ function MovableBlob({
           borderRadius: "10px",
           marginBottom: "20px",
           overflow: "hidden",
-          height: "300px", // Ensure a fixed height to contain the blob
-          cursor: "pointer", // Indicate that it's clickable
+          height: "300px",
+          cursor: "pointer",
         }}
       >
         {trail.map((props, index) => (
@@ -195,9 +202,7 @@ function MovableBlob({
               backgroundImage: post.artConfig.blobImage
                 ? `url(${post.artConfig.blobImage})`
                 : "none",
-              backgroundColor: post.artConfig.blobImage
-                ? "transparent" // Set background to transparent if an image is present
-                : post.artConfig.blobColor, // Fallback to color if no image is present
+              backgroundColor: post.artConfig.blobImage ? "transparent" : post.artConfig.blobColor,
               backgroundSize: "cover",
               backgroundPosition: "center",
               transform: props.xy.to(trans),
@@ -206,67 +211,73 @@ function MovableBlob({
         ))}
       </div>
 
-      {/* Like and Delete actions */}
       <div style={actionContainerStyles}>
-        {/* Heart icon with a like/unlike counter */}
-        <div
-          onClick={() => handleLike(post.id)}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            cursor: "pointer",
-          }}
-        >
-          <FaHeart
-            style={{
-              color: "red",
-              fontSize: "20px",
-              marginRight: "8px",
-            }}
-          />
-          <span>{isNaN(post.likes) ? 0 : post.likes}</span>
+        <div onClick={() => handleLike(post.id)} style={likeButtonStyles}>
+          <div style={{ marginRight: "8px" }}>
+            <FaHeart color={isLiked ? "red" : "#888"} size={20} />
+          </div>
+          <span>{post.likes}</span>
         </div>
 
-        {/* Delete icon */}
-        <FaTrashAlt
-          onClick={() => handleDelete(post.id)}
-          style={{
-            color: "#888",
-            fontSize: "20px",
-            marginLeft: "15px",
-            cursor: "pointer",
-          }}
-          title="Delete Post"
-        />
+        <div onClick={() => handleDelete(post.id)} style={deleteButtonStyles}>
+          <FaTrashAlt color="#888" size={20} />
+        </div>
       </div>
     </div>
   );
 }
 
 // Inline Styles
-const titleStyles = {
+const containerStyles: React.CSSProperties = {
+  padding: "20px",
+  backgroundColor: "#f5f5f5",
+};
+
+const titleStyles: React.CSSProperties = {
   textAlign: "center",
   color: "#333",
-  fontSize: "32px",  // Increased font size
-  fontWeight: "bold",  // Bold text
-  marginBottom: "20px", // Add spacing below the title
+  fontSize: "32px",
+  fontWeight: "bold",
+  marginBottom: "20px",
 };
 
-const postContainerStyles = {
-  padding: "15px",  // Maintain good padding for content
+const postsContainerStyles: React.CSSProperties = {
+  padding: "10px",
+};
+
+const postContainerStyles: React.CSSProperties = {
+  padding: "15px",
   border: "1px solid #ddd",
   borderRadius: "10px",
-  marginBottom: "30px",  // Maintain spacing between posts
+  marginBottom: "30px",
   backgroundColor: "#fff",
-  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",  // Slight shadow for elevation
-  width: "500px",  // Increase width to make the post wider
-  margin: "20px auto",  // Center the post and maintain vertical spacing
+  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+  width: "500px",
+  margin: "20px auto",
   textAlign: "center",
 };
 
-const actionContainerStyles = {
+const userNameStyles: React.CSSProperties = {
+  color: "#333",
+  marginBottom: "10px",
+};
+
+const actionContainerStyles: React.CSSProperties = {
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  marginTop: "10px", // Add some space between the image and the actions
+  marginTop: "10px",
+};
+
+const likeButtonStyles: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  cursor: "pointer",
+};
+
+const deleteButtonStyles: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  cursor: "pointer",
+  marginLeft: "15px",
 };
