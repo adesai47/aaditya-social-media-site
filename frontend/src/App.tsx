@@ -1,5 +1,5 @@
 import { Routes, Route, useNavigate } from "react-router-dom";
-import { SignIn, SignedIn, SignedOut, SignInButton, UserButton, RedirectToSignIn } from "@clerk/clerk-react";
+import { SignedIn, SignedOut, SignInButton, UserButton, RedirectToSignIn } from "@clerk/clerk-react";
 import { ArtBuilder } from "./components/ArtBuilder";
 import { SocialFeed } from "./components/SocialFeed";
 import { DrawingPage } from "./components/DrawingPage";
